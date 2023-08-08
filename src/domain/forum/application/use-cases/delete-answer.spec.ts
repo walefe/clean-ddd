@@ -2,6 +2,7 @@ import { InMemoryAnswersRepository } from 'test/repositories/in-memory-answers-r
 import { makeAnswer } from 'test/factories/make-answer'
 import { DeleteAnswerUseCase } from './delete-answer'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { ResourceNotFoundError } from './errors/resource-not-found-error'
 
 let inMemoryAnswersRepository: InMemoryAnswersRepository
 let sut: DeleteAnswerUseCase
@@ -37,11 +38,11 @@ describe('Delete Answer', () => {
     )
     await inMemoryAnswersRepository.create(newAnswer)
 
-    await expect(() => {
-      return sut.execute({
-        authorId: 'author-1',
-        answerId: 'answer-2',
-      })
-    }).rejects.toBeInstanceOf(Error)
+    const result = await sut.execute({
+      authorId: 'author-1',
+      answerId: 'answer-2',
+    })
+    expect(result.isLeft()).toBe(true)
+    expect(result.value).toBeInstanceOf(ResourceNotFoundError)
   })
 })
